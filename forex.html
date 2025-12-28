@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body{
+  margin:0;
+  background:#000;
+  font-family:Arial, Helvetica, sans-serif;
+}
+.ticker{
+  overflow:hidden;
+  white-space:nowrap;
+  background:#0b0b0b;
+  padding:10px;
+  border-top:1px solid #333;
+  border-bottom:1px solid #333;
+}
+.track{
+  display:inline-block;
+  animation: scroll 25s linear infinite;
+}
+.item{
+  display:inline-block;
+  margin-right:40px;
+  color:white;
+  font-size:14px;
+}
+.up{color:#00ff9d;}
+.down{color:#ff4d4d;}
+
+@keyframes scroll{
+  from{transform:translateX(100%);}
+  to{transform:translateX(-100%);}
+}
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="track" id="track"></div>
+</div>
+
+<script>
+const API_KEY="031acf2d9b014cc2a294f3fb1607c366";
+const pairs=["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD"];
+
+async function loadData(){
+  const url=`https://api.twelvedata.com/quote?symbol=${pairs.join(",")}&apikey=${API_KEY}`;
+  const r=await fetch(url);
+  const d=await r.json();
+  const t=document.getElementById("track");
+  t.innerHTML="";
+  pairs.forEach(p=>{
+    const k=p.replace("/","");
+    const o=d[k];
+    if(!o) return;
+    const c=parseFloat(o.percent_change);
+    t.innerHTML+=`
+      <span class="item">
+        ${p} 
+        <span class="${c>=0?'up':'down'}">${o.close} (${c.toFixed(2)}%)</span>
+      </span>`;
+  });
+}
+
+loadData();
+setInterval(loadData,60000);
+</script>
+
+</body>
+</html>
