@@ -3,77 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <title>Live Forex Ticker</title>
-<style>
-body{
-  margin:0;
-  background:#000;
-  font-family:Arial, Helvetica, sans-serif;
-}
-.ticker{
-  width:100%;
-  overflow:hidden;
-  background:#0b0b0b;
-  padding:10px;
-  border-top:1px solid #333;
-  border-bottom:1px solid #333;
-}
-.track{
-  display:inline-block;
-  white-space:nowrap;
-  animation: scroll 20s linear infinite;
-}
-.item{
-  display:inline-block;
-  margin-right:40px;
-  color:white;
-  font-size:14px;
-}
-.up{color:#00ff9d;}
-.down{color:#ff4d4d;}
-@keyframes scroll{
-  from{transform:translateX(100%);}
-  to{transform:translateX(-100%);}
-}
-</style>
 </head>
-<body>
+<body style="margin:0;background:black;">
 
-<div class="ticker">
-  <div class="track" id="track">Loading Forex Data...</div>
-</div>
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
 
-<script>
-const API_KEY = "031acf2d9b014cc2a294f3fb1607c366";   
-const pairs = ["EUR/USD","GBP/USD","USD/JPY"];
-
-async function loadData(){
-  try{
-    const url = `https://api.twelvedata.com/quote?symbol=${pairs.join(",")}&apikey=${API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const t = document.getElementById("track");
-    t.innerHTML = "";
-
-    pairs.forEach(p=>{
-      const k = p.replace("/","");
-      const o = data[k];
-      if(!o || !o.close) return;
-
-      const ch = parseFloat(o.percent_change || 0);
-      t.innerHTML += `
-        <span class="item">
-          ${p}
-          <span class="${ch>=0?'up':'down'}">${o.close} (${ch.toFixed(2)}%)</span>
-        </span>`;
-    });
-  }catch(e){
-    document.getElementById("track").innerText="Unable to load data";
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+  {
+    "symbols": [
+      {"proName": "FX:EURUSD", "title": "EUR/USD"},
+      {"proName": "FX:GBPUSD", "title": "GBP/USD"},
+      {"proName": "FX:USDJPY", "title": "USD/JPY"},
+      {"proName": "FX:AUDUSD", "title": "AUD/USD"},
+      {"proName": "FX:USDCAD", "title": "USD/CAD"}
+    ],
+    "showSymbolLogo": true,
+    "isTransparent": false,
+    "displayMode": "adaptive",
+    "colorTheme": "dark",
+    "locale": "en"
   }
-}
-
-loadData();
-setInterval(loadData,60000);
-</script>
+  </script>
+</div>
 
 </body>
 </html>
