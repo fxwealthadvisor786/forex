@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<title>Live Forex Ticker</title>
 <style>
 body{
   margin:0;
@@ -9,8 +10,8 @@ body{
   font-family:Arial, Helvetica, sans-serif;
 }
 .ticker{
+  width:100%;
   overflow:hidden;
-  white-space:nowrap;
   background:#0b0b0b;
   padding:10px;
   border-top:1px solid #333;
@@ -18,7 +19,8 @@ body{
 }
 .track{
   display:inline-block;
-  animation: scroll 25s linear infinite;
+  white-space:nowrap;
+  animation: scroll 20s linear infinite;
 }
 .item{
   display:inline-block;
@@ -28,7 +30,6 @@ body{
 }
 .up{color:#00ff9d;}
 .down{color:#ff4d4d;}
-
 @keyframes scroll{
   from{transform:translateX(100%);}
   to{transform:translateX(-100%);}
@@ -38,30 +39,36 @@ body{
 <body>
 
 <div class="ticker">
-  <div class="track" id="track"></div>
+  <div class="track" id="track">Loading Forex Data...</div>
 </div>
 
 <script>
-const API_KEY="031acf2d9b014cc2a294f3fb1607c366";
-const pairs=["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD"];
+const API_KEY = "031acf2d9b014cc2a294f3fb1607c366";   
+const pairs = ["EUR/USD","GBP/USD","USD/JPY"];
 
 async function loadData(){
-  const url=`https://api.twelvedata.com/quote?symbol=${pairs.join(",")}&apikey=${API_KEY}`;
-  const r=await fetch(url);
-  const d=await r.json();
-  const t=document.getElementById("track");
-  t.innerHTML="";
-  pairs.forEach(p=>{
-    const k=p.replace("/","");
-    const o=d[k];
-    if(!o) return;
-    const c=parseFloat(o.percent_change);
-    t.innerHTML+=`
-      <span class="item">
-        ${p} 
-        <span class="${c>=0?'up':'down'}">${o.close} (${c.toFixed(2)}%)</span>
-      </span>`;
-  });
+  try{
+    const url = `https://api.twelvedata.com/quote?symbol=${pairs.join(",")}&apikey=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const t = document.getElementById("track");
+    t.innerHTML = "";
+
+    pairs.forEach(p=>{
+      const k = p.replace("/","");
+      const o = data[k];
+      if(!o || !o.close) return;
+
+      const ch = parseFloat(o.percent_change || 0);
+      t.innerHTML += `
+        <span class="item">
+          ${p}
+          <span class="${ch>=0?'up':'down'}">${o.close} (${ch.toFixed(2)}%)</span>
+        </span>`;
+    });
+  }catch(e){
+    document.getElementById("track").innerText="Unable to load data";
+  }
 }
 
 loadData();
